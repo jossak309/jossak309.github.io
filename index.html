@@ -281,8 +281,37 @@ li { list-style: none; }
 .cred-list li { padding-block: 1rem; border-top: 1px solid var(--line); }
 .cred-list .name { font-weight: 600; }
 .cred-list .by { color: var(--muted); font-size: .95rem; }
+.proof {
+  display: inline-flex; align-items: center; gap: .4rem; margin-top: .5rem;
+  font-size: .92rem; font-weight: 600; color: var(--accent-ink);
+  text-decoration-thickness: 1px; text-underline-offset: .25em; transition: color .2s ease;
+}
+.proof:hover { color: var(--text); }
+.proof svg { width: 1rem; height: 1rem; flex: none; }
 .sub-head { font-family: var(--font-body); font-size: 1rem; font-weight: 600; color: var(--muted); margin: 0 0 .5rem; }
 .cred-block + .cred-block { margin-top: 2.5rem; }
+
+/* ---------- certificate viewer ---------- */
+html:has(.viewer[open]) { overflow: hidden; }
+.viewer {
+  width: min(60rem, calc(100vw - 2rem)); max-width: none; max-height: calc(100vh - 2rem); max-height: calc(100dvh - 2rem);
+  padding: 0; border: 1px solid var(--line); border-radius: 1rem;
+  background: var(--surface); color: var(--text); overflow: hidden;
+}
+.viewer[open] { display: flex; flex-direction: column; }
+.viewer::backdrop { background: rgba(5, 16, 18, .78); }
+.viewer-bar { display: flex; align-items: center; gap: .5rem 1rem; padding: .7rem .8rem .7rem 1.15rem; border-bottom: 1px solid var(--line); }
+.viewer-bar h2 { font-family: var(--font-body); font-size: 1rem; font-weight: 600; line-height: 1.35; margin-right: auto; }
+.viewer-bar a { font-size: .92rem; font-weight: 600; color: var(--accent-ink); text-underline-offset: .25em; white-space: nowrap; }
+.viewer-bar a:hover { color: var(--text); }
+.viewer-body { min-height: 0; overflow: auto; background: #fff; }
+.viewer-body img { width: 100%; height: auto; }
+@media (prefers-reduced-motion: no-preference) {
+  .viewer[open] { animation: viewer-in .32s cubic-bezier(.2, .8, .2, 1); }
+  .viewer[open]::backdrop { animation: viewer-fade .3s ease-out; }
+  @keyframes viewer-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+  @keyframes viewer-fade { from { opacity: 0; } to { opacity: 1; } }
+}
 
 /* ---------- contact ---------- */
 .contact { position: relative; overflow: hidden; }
@@ -502,8 +531,8 @@ textarea { min-height: 9rem; resize: vertical; }
           <h3 class="sub-head" data-reveal>Certifications</h3>
           <ul class="cred-list">
             <li data-reveal><div class="name">Data Science for Engineers</div><div class="by">NPTEL, IIT Madras</div></li>
-            <li data-reveal><div class="name">Corporate Finance Foundations Professional Certificate</div><div class="by">Corporate Finance Institute (CFI)</div></li>
-            <li data-reveal><div class="name">Agile Business Analysis</div><div class="by">LinkedIn Learning</div></li>
+            <li data-reveal><div class="name">Corporate Finance Foundations Professional Certificate</div><div class="by">CFI, via LinkedIn Learning</div><a class="proof" href="certificate-cfi-corporate-finance-foundations.pdf" target="_blank" rel="noopener" data-img="certificate-cfi-corporate-finance-foundations.jpg" data-title="CFI Corporate Finance Foundations Professional Certificate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13l2 2 4-4"/></svg>View certificate</a></li>
+            <li data-reveal><div class="name">Agile Business Analysis</div><div class="by">LinkedIn Learning</div><a class="proof" href="certificate-agile-business-analysis.pdf" target="_blank" rel="noopener" data-img="certificate-agile-business-analysis.jpg" data-title="Agile Business Analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13l2 2 4-4"/></svg>View certificate</a></li>
             <li data-reveal><div class="name">Business Finance: Introduction to Financial Modeling</div><div class="by">LinkedIn Learning</div></li>
             <li data-reveal><div class="name">AI Literacy and Prompt Engineering eLearning Program</div><div class="by">EY</div></li>
             <li data-reveal><div class="name">AI and ML Internship</div><div class="by">TechieNest Pvt. Ltd.</div></li>
@@ -549,6 +578,17 @@ textarea { min-height: 9rem; resize: vertical; }
   </section>
 
 </main>
+
+<dialog class="viewer" id="viewer" aria-labelledby="viewer-title">
+  <div class="viewer-bar">
+    <h2 id="viewer-title"></h2>
+    <a id="viewer-pdf" href="#" target="_blank" rel="noopener">Open PDF</a>
+    <button class="icon-btn" id="viewer-close" type="button" aria-label="Close certificate">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="viewer-body"><img id="viewer-img" alt="" width="1600" height="1236"></div>
+</dialog>
 
 <footer class="site-footer">
   <div class="wrap">
@@ -832,6 +872,28 @@ textarea { min-height: 9rem; resize: vertical; }
     return parseFloat(getComputedStyle(document.querySelector('.hero .wrap')).paddingBottom) || 180;
   } }));
   strandFields.push(strandField(document.getElementById('contact-strands'), { count: 6, flip: true, seed: 11, band: function () { return 96; } }));
+
+  /* ----- certificate viewer: opens the certificate in place; without it the link opens the PDF ----- */
+  var viewer = document.getElementById('viewer');
+  if (viewer && typeof viewer.showModal === 'function') {
+    var viewerImg = document.getElementById('viewer-img');
+    var viewerTitle = document.getElementById('viewer-title');
+    var viewerPdf = document.getElementById('viewer-pdf');
+    Array.prototype.forEach.call(document.querySelectorAll('a.proof[data-img]'), function (a) {
+      a.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+        e.preventDefault();
+        var title = a.getAttribute('data-title');
+        viewerTitle.textContent = title;
+        viewerImg.alt = title + ', certificate awarded to Sakshi Joshi';
+        viewerImg.src = a.getAttribute('data-img');
+        viewerPdf.href = a.getAttribute('href');
+        viewer.showModal();
+      });
+    });
+    document.getElementById('viewer-close').addEventListener('click', function () { viewer.close(); });
+    viewer.addEventListener('click', function (e) { if (e.target === viewer) viewer.close(); });
+  }
 
   /* ----- contact form ----- */
   var form = document.getElementById('contact-form');
